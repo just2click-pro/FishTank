@@ -24,4 +24,4 @@ Netcraft Fish Tank web-page **Home Work** Project for NetCraft's Academy Front E
 
 ### Project Page
 
-[fishtank](https://just2netcraft.github.io/fishtank/)
+[fishtank](https://just2netcraft.github.io/FishTank/)
