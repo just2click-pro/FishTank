@@ -89,11 +89,11 @@ function Tank () {
 
 		switch (imageIndex) {
 			case 1:
-				return '/resources/images/blue-fish.png';
+				return 'resources/images/blue-fish.png';
 			case 2:
-				return '/resources/images/orange-fish.png';
+				return 'resources/images/orange-fish.png';
 			case 3:
-				return '/resources/images/colorfull-fish.png';
+				return 'resources/images/colorfull-fish.png';
 		}
 	};
 
@@ -102,9 +102,9 @@ function Tank () {
 
 		switch (imageIndex) {
 			case 1:
-				return '/resources/images/broom.png';
+				return 'resources/images/broom.png';
 			case 2:
-				return '/resources/images/vacuum-cleaner.png';
+				return 'resources/images/vacuum-cleaner.png';
 		}
 	};
 
