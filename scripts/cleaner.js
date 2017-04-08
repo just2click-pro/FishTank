@@ -4,13 +4,12 @@ function Cleaner($container, imageUrl) {
 		'x': 0,
 		'y': 0
 	};
-	this.direction = (randomValue(1, 2) === 1 ? 'right' : 'left');
-	this.energy = randomValue(500, 1000);	// Start with a random amount of food
+	this.direction = (utils.random(1, 2) === 1 ? 'right' : 'left');
+	this.energy = utils.random(500, 1000);	// Start with a random amount of food
 	this.moveInterval = undefined;
 
 	this.move = function () {
 		var bounds = $container.getBounds();
-		this.vw4 = document.documentElement.clientWidth * 0.045;
 
 		switch (this.direction) {
 			case 'left':
@@ -21,7 +20,7 @@ function Cleaner($container, imageUrl) {
 				}
 				break;
 			case 'right':
-				if ((this.position.x + 10) > (bounds.right - bounds.left - this.vw4)) {
+				if ((this.position.x + 10) > bounds.right) {
 					this.direction = 'left';
 				} else {
 					this.position.x += 10;
@@ -38,18 +37,15 @@ function Cleaner($container, imageUrl) {
 		var that = this;
 		var bounds = $container.getBounds();
 
-		var vw4 = document.documentElement.clientWidth * 0.04;
-		var vh2 = document.documentElement.clientHeight * 0.2;
-
-		this.position.x = randomValue(0, bounds.right - bounds.left - (2 * vw4));
-		this.position.y = bounds.bottom - (bounds.top + vh2);
+		this.position.x = utils.random(0, bounds.right - bounds.left);
+		this.position.y = bounds.bottom - bounds.top;
 
 		this.renderCleaner();
 		this.moveCleanerRender();
 
 		this.moveInterval = setInterval(function () {
 			that.move();
-		}, randomValue(100, 900));
+		}, utils.random(100, 900));
 	};
 
 	this.clean = function () {

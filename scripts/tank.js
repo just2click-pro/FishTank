@@ -1,17 +1,10 @@
-function Tank () {
-	var that = this;
-	this.fishTank = document.querySelector('.inner-tank');
-	this.water = document.querySelector('.tank');
+var Tank = function () {
+	var self = this;
+	var BreakException = {};
+
+	this.fishTank = document.querySelector('.tank');
+	this.water = document.querySelector('.water');
 	this.allFish = [];
-
-	this.baseColor = '#09f';
-	this.gradientTopColor = '#0099ff';
-	this.gradiantBottomColor = '#45d1ff';
-
-	this.bottom = 0;
-	this.left = 0;
-	this.right = 0;
-	this.top = 0;
 
 	this.tankPoop = 0;
 
@@ -19,51 +12,48 @@ function Tank () {
 	this.cleanEvent = new Event('clean');
 	this.deadFishEvent = new Event('dead-fish');
 
-	this.getWaterBackground = function () {
-		return (
-			'background:' + this.baseColor + ';' +
-			'background-image: -moz-linear-gradient(bottom,' + this.gradientTopColor + ',' + this.gradiantBottomColor + ');' +
-			'background-image: -webkit-linear-gradient(bottom,' + this.gradientTopColor + ',' + this.gradiantBottomColor + ');' +
-			'background-image: linear-gradient(to top,'  + this.gradientTopColor + ',' + this.gradiantBottomColor + ');');
-	};
-
-	this.onResize = function () {
-		var rect = this.fishTank.getBoundingClientRect();
-
-		this.bottom = rect.bottom;
-		this.left = rect.left;
-		this.right = rect.right;
-		this.top = rect.top;
-	};
-
 	this.getBounds = function () {
+		var viewport = utils.viewport();
+		var waterProps = utils.props(this.water);
+
 		return {
-			'bottom': this.bottom + 52,
-			'left': this.left + 2,
-			'right': this.right - 2,
-			'top': this.top - 2,
+			'top': waterProps.top - viewport.vh * 0.05,
+			'right': waterProps.width - (viewport.vw * 0.03),
+			'bottom': waterProps.top + waterProps.height - (viewport.vh * 0.09),
+			'left': waterProps.left + viewport.vw * 0.05
 		};
 	};
 
-	this.onFishPoop = function () {
-		that.tankPoop++;
+	this.handleFishPoop = function () {
+		self.tankPoop++;
 
-		if ((that.tankPoop % 100) === 0) {
-			that.baseColor = lightenDarkenColor(that.baseColor, -5);
-			that.gradientTopColor = lightenDarkenColor(that.gradientTopColor, -5);
-			that.gradiantBottomColor = lightenDarkenColor(that.gradiantBottomColor, -5);
-
-			that.water.setAttribute('style', that.getWaterBackground());
+		if ((self.tankPoop % 100) === 0) {
+			self.handleWaterChanges(-0.01);
 		}
 	};
 
-	this.onDeadFish = function (params) {
-		var index = 0;
+	this.handleCleanWater = function () {
+		self.tankPoop -= 10;
 
+		if ((self.tankPoop % 100) === 0) {
+			self.handleWaterChanges(0.01);
+		}
+	};
+
+	this.handleWaterChanges = function (value) {
+		var waterOpacity = this.water.getAttribute('style');
+		waterOpacity = parseFloat(waterOpacity.split(':')[1], 10);
+
+		if ((waterOpacity > 0.01) && (waterOpacity < 1.00)) {
+			this.water.setAttribute('style', waterOpacity + value);
+		}
+	};
+
+	this.handleDeadFish = function (params) {
 		try {
-			that.allFish.forEach(function (isThisADeadFish) {
+			self.allFish.forEach(function (isThisADeadFish, index) {
 				if (isThisADeadFish.id === params.fish.id) {
-					that.allFish.splice(index, 1);
+					self.allFish.splice(index, 1);
 					throw BreakException;
 				}
 			});
@@ -72,20 +62,8 @@ function Tank () {
 		}
 	};
 
-	this.onClean = function () {
-		that.tankPoop -= 10;
-
-		if ((that.tankPoop % 100) === 0) {
-			that.baseColor = lightenDarkenColor(that.baseColor, 5);
-			that.gradientTopColor = lightenDarkenColor(that.gradientTopColor, 5);
-			that.gradiantBottomColor = lightenDarkenColor(that.gradiantBottomColor, 5);
-
-			that.water.setAttribute('style', that.getWaterBackground());
-		}
-	};
-
 	this.selectFishImage = function () {
-		var imageIndex = randomValue(1, 3);
+		var imageIndex = utils.random(1, 3);
 
 		switch (imageIndex) {
 			case 1:
@@ -98,7 +76,7 @@ function Tank () {
 	};
 
 	this.selectCleanerImage = function () {
-		var imageIndex = randomValue(1, 2);
+		var imageIndex = utils.random(1, 2);
 
 		switch (imageIndex) {
 			case 1:
@@ -110,24 +88,22 @@ function Tank () {
 
 	this.addFish = function () {
 		var fish = new Fish(this, this.selectFishImage());
-		fish.id = guid();
+		fish.id = utils.guid;
 		fish.hatch();
 		this.allFish.push(fish);
-		this.fishTank.addEventListener('poop', this.onFishPoop);
-		this.fishTank.addEventListener('dead-fish', this.onDeadFish);
+		this.fishTank.addEventListener('poop', this.handleFishPoop);
+		this.fishTank.addEventListener('dead-fish', this.handleDeadFish);
 	};
 
 	this.addCleaner = function () {
 		var cleaner = new Cleaner(this, this.selectCleanerImage());
 		cleaner.spawn();
-		this.fishTank.addEventListener('clean', this.onClean);
+		this.fishTank.addEventListener('clean', this.handleClean);
 	};
 
 	this.feed = function () {
 		for (var fish of this.allFish) {
-			fish.eat(randomValue(10, 100));
+			fish.eat(utils.random(10, 100));
 		}
 	};
-
-	this.water.setAttribute('style', this.getWaterBackground());
-}
+};
