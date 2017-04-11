@@ -1,4 +1,4 @@
-  var utils = (function () {
+  aquaFun.utils = (function () {
     function random(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
     }
@@ -52,10 +52,23 @@
       };
     }
 
+    // Return a percentage value limited
+    function limitedPercentage (props) {
+      var result = (Math.floor((props.value / props.maxValue) * 100));
+      if (result > props.topLimit) {
+        result = props.topLimit;
+      } else if (result < props.lowerLimit) {
+        result = props.lowerLimit;
+      }
+      return result;
+
+    }
+
     return {
       random: random,
       guid: guid,
       viewport: getViewport,
-      props: getElementProps
+      props: getElementProps,
+      percentage: limitedPercentage
     };
   })();

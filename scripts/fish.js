@@ -1,29 +1,36 @@
-var Fish = function ($container, imageUrl) {
-	this.greenColor= '#99ff33';
-	this.redColor = '#ff6666';
+aquaFun.Fish = function ($container, imageUrl) {
+
+	// Fish properties
 	this.fish = undefined;
 	this.image = undefined;
+	this.energyColors = {
+		green: '#99ff33',
+		red: '#ff6666'
+	};
+
 	this.position = {
 		'x': 0,
 		'y': 0
 	};
-	this.direction = (utils.random(1, 2) === 1 ? 'right' : 'left');
-	this.food = utils.random(50, 400);	// Start with a random amount of food
-	this.fishSize = utils.random(4, 10);
-	this.fishGrowth = utils.random(3, 5) / 100;
+
+	this.direction = (aquaFun.utils.random(1, 2) === 1 ? 'right' : 'left');
+	this.food = aquaFun.utils.random(50, 400);	// Start with a random amount of food
+	this.size = aquaFun.utils.random(4, 10);
+	this.growth = aquaFun.utils.random(3, 5) / 100;
 	this.dying = false;
+
 	this.swimInterval = undefined;
 
-	this.foodPercentage = function () {
-		var limitedPercentage = (Math.floor((this.food / 500) * 100));
-		if (limitedPercentage > 96) {
-			limitedPercentage = 96;
-		} else if (limitedPercentage < 2) {
-			limitedPercentage = 2;
-		}
-		return limitedPercentage;
+	this.energyPercentage = function () {
+		return aquaFun.utils.percentage({
+			value: this.food,
+			maxValue: 500,
+			lowerLimit: 4,
+			topLimit: 96
+		});
 	};
 
+	// Fish actions
 	this.swim = function () {
 		var bounds = $container.getBounds();
 
@@ -57,8 +64,8 @@ var Fish = function ($container, imageUrl) {
 		var that = this;
 		var bounds = $container.getBounds();
 
-		this.position.x = utils.random(0, bounds.right - bounds.left);
-		this.position.y = utils.random(40, bounds.bottom - bounds.top);
+		this.position.x = aquaFun.utils.random(0, bounds.right - bounds.left);
+		this.position.y = aquaFun.utils.random(40, bounds.bottom - bounds.top);
 
 		this.renderFish();
 		this.swimFishRender('fish');
@@ -75,22 +82,20 @@ var Fish = function ($container, imageUrl) {
 		} else {
 			this.food += food;
 		}
-		this.perecentage.setAttribute('style',
-			'background:' + (this.food > 200 ? this.greenColor : this.redColor) + ';' +
-			'width:' + this.foodPercentage() + '%;');
-		if (this.fishSize < 8) {
-			this.fishSize += this.fishGrowth * 10;
+
+		this.energyRender();
+
+		if (this.size < 8) {
+			this.size += this.growth * 10;
 		}
 	};
 
 	this.poop = function () {
-		if (this.fishSize > 3) {
-			this.fishSize -= this.fishGrowth;
+		if (this.size > 3) {
+			this.size -= this.growth;
 		}
 
-		this.perecentage.setAttribute('style',
-			'background:' + (this.food > 200 ? this.greenColor : this.redColor) + ';' +
-			'width:' + this.foodPercentage() + '%;');
+		this.energyRender();
 
 		if (this.food <= 10) {
 			this.die();
@@ -110,6 +115,7 @@ var Fish = function ($container, imageUrl) {
 		clearInterval(this.swimInterval);
 	};
 
+	// Rendereds
 	this.renderFish = function () {
 		this.perecentage = document.createElement('div');
 		this.energy = document.createElement('div');
@@ -120,7 +126,7 @@ var Fish = function ($container, imageUrl) {
 		this.perecentage.setAttribute('class', 'perecentage');
 		this.perecentage.setAttribute('style',
 			'background:' + (this.food > 200 ? this.greenColor : this.redColor) + ';' +
-			'width:' + this.foodPercentage() + '%;');
+			'width:' + this.energyPercentage() + '%;');
 		this.energy.setAttribute('class', 'energy');
 
 		this.image.setAttribute('src', imageUrl);
@@ -146,8 +152,15 @@ var Fish = function ($container, imageUrl) {
 		} else {
 			this.image.setAttribute('class', 'fish ' + additionalClass);
 		}
-		this.image.setAttribute('style', 'height:' +  this.fishSize + 'vh');
+		this.image.setAttribute('style', 'height:' +  this.size + 'vh');
 		this.fish.setAttribute('style',
 			'position: absolute; top:' + this.position.y + 'px; left:' + this.position.x + 'px;');
+	};
+
+	this.energyRender = function () {
+		this.perecentage.setAttribute('style',
+			'background:' + (this.food > 200 ? this.energyColors.green : this.energyColors.red) + ';' +
+			'width:' + this.energyPercentage() + '%;');
+
 	};
 };

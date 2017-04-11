@@ -1,13 +1,17 @@
-function Cleaner($container, imageUrl) {
+aquaFun.Cleaner = function ($container, imageUrl) {
+
+	// Cleaner Properties
 	this.image = undefined;
 	this.position = {
 		'x': 0,
 		'y': 0
 	};
-	this.direction = (utils.random(1, 2) === 1 ? 'right' : 'left');
-	this.energy = utils.random(500, 1000);	// Start with a random amount of food
+	this.direction = (aquaFun.utils.random(1, 2) === 1 ? 'right' : 'left');
+	this.energy = aquaFun.utils.random(500, 1000);	// Start with a random amount of energy
+
 	this.moveInterval = undefined;
 
+	// Clenaer actions
 	this.move = function () {
 		var bounds = $container.getBounds();
 
@@ -36,9 +40,9 @@ function Cleaner($container, imageUrl) {
 	this.spawn = function () {
 		var that = this;
 		var bounds = $container.getBounds();
-		var viewport = utils.viewport();
+		var viewport = aquaFun.utils.viewport();
 
-		this.position.x = utils.random(0, bounds.right - bounds.left);
+		this.position.x = aquaFun.utils.random(0, bounds.right - bounds.left);
 		this.position.y = bounds.bottom - bounds.top + viewport.vh * 0.058;
 
 		this.renderCleaner();
@@ -46,7 +50,7 @@ function Cleaner($container, imageUrl) {
 
 		this.moveInterval = setInterval(function () {
 			that.move();
-		}, utils.random(100, 900));
+		}, aquaFun.utils.random(100, 900));
 	};
 
 	this.clean = function () {
@@ -65,6 +69,7 @@ function Cleaner($container, imageUrl) {
 			// die
 	};
 
+	// Renderers
 	this.renderCleaner = function () {
 		this.image = document.createElement('img');
 		this.image.setAttribute('src', imageUrl);
@@ -82,4 +87,4 @@ function Cleaner($container, imageUrl) {
 			'left:' + this.position.x + 'px; ' +
 			'height: 4vh;');
 	};
-}
+};

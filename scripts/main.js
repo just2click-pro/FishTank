@@ -1,15 +1,8 @@
-var aquaFun = {};
+aquaFun.fishTank = (function () {
 
-var fishTank = (function () {
+	this.tank = new aquaFun.Tank();
+	this.ui = new aquaFun.UI(tank);
 
-	this.tank = new Tank();
-	this.ui = new UI(tank);
-
-	messaging.postMessage(messaging.messageKeys.welcome);
-
-	return {
-		tank: this.tank,
-		tankUI: this.ui
-	};
+	aquaFun.messaging.postMessage(aquaFun.messaging.messageKeys.welcome);
 
 })();

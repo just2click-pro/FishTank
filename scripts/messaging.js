@@ -1,4 +1,4 @@
-var messaging = (function () {
+aquaFun.messaging = (function () {
 	var lastMessageKey = -1;
 	var messageKeys = {
 		'welcome': 0,

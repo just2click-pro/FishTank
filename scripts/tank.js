@@ -1,26 +1,29 @@
-var Tank = function () {
+aquaFun.Tank = function () {
 	var self = this;
 	var BreakException = {};
 
-	this.fishFood = document.querySelector('#fish-food');
+	// Tank Properites
+	this.food = document.querySelector('#fish-food');
 	this.tank = document.querySelector('.tank');
 	this.water = document.querySelector('.water');
 	this.allFish = [];
 
-	this.tankPoop = 0;
+	this.poop = 0;
 
 	this.poopEvent = new Event('poop');
 	this.cleanEvent = new Event('clean');
 	this.deadFishEvent = new Event('dead-fish');
 
+	// Utils
 	this.getBounds = function () {
-		return utils.props(document.querySelector('.water'));
+		return aquaFun.utils.props(document.querySelector('.water'));
 	};
 
+	// Handlers - take care of events
 	this.handleFishPoop = function () {
-		self.tankPoop++;
+		self.poop++;
 
-		if ((self.tankPoop % 100) === 0) {
+		if ((self.poop % 100) === 0) {
 			self.handleWaterChanges(-0.05);
 		}
 
@@ -28,9 +31,9 @@ var Tank = function () {
 	};
 
 	this.handleCleanWater = function () {
-		self.tankPoop -= 10;
+		self.poop -= 10;
 
-		if ((self.tankPoop % 100) === 0) {
+		if ((self.poop % 100) === 0) {
 			self.handleWaterChanges(0.05);
 		}
 	};
@@ -59,16 +62,17 @@ var Tank = function () {
 		}
 
 		if (self.countLiveFish() === 0) {
-			messaging.postMessage(messaging.messageKeys.end);
+			aquaFun.messaging.postMessage(aquaFun.messaging.messageKeys.end);
 			throw new Error("All the fish are dead!!");
 		} else if (self.countLiveFish() < 5) {
-			messaging.postMessage(messaging.messageKeys.lonely);
+			aquaFun.messaging.postMessage(aquaFun.messaging.messageKeys.lonely);
 			fishTank.tankUI.flickerButton(fishTank.tankUI.buttonKeys.add);
 		}
 	};
 
+	// Select Fish/Cleaner images
 	this.selectFishImage = function () {
-		var imageIndex = utils.random(1, 3);
+		var imageIndex = aquaFun.utils.random(1, 3);
 
 		switch (imageIndex) {
 			case 1:
@@ -81,7 +85,7 @@ var Tank = function () {
 	};
 
 	this.selectCleanerImage = function () {
-		var imageIndex = utils.random(1, 2);
+		var imageIndex = aquaFun.utils.random(1, 2);
 
 		switch (imageIndex) {
 			case 1:
@@ -91,6 +95,7 @@ var Tank = function () {
 		}
 	};
 
+	// Counters
 	this.countHungryFish = function () {
 		var hungryFish = 0;
 
@@ -99,7 +104,7 @@ var Tank = function () {
 		}
 
 		if ((hungryFish / this.allFish.length) > 0.5) {
-			messaging.postMessage(messaging.messageKeys.hungry);
+			aquaFun.messaging.postMessage(aquaFun.messaging.messageKeys.hungry);
 			fishTank.tankUI.flickerButton(fishTank.tankUI.buttonKeys.food);
 		}
 	};
@@ -114,30 +119,31 @@ var Tank = function () {
 		return (cleanersCount.length / this.countLiveFish());
 	};
 
+	// Actions
 	this.addFish = function () {
-		var fish = new Fish(this, this.selectFishImage());
-		fish.id = utils.guid;
+		var fish = new aquaFun.Fish(this, this.selectFishImage());
+		fish.id = aquaFun.utils.guid;
 		fish.hatch();
 		this.allFish.push(fish);
 		this.tank.addEventListener('poop', this.handleFishPoop);
 		this.tank.addEventListener('dead-fish', this.handleDeadFish);
 		if ((this.fishToCleanerRatio() < 0.3) && (this.countLiveFish() > 3)) {
-			messaging.postMessage(messaging.messageKeys.dirty);
+			aquaFun.messaging.postMessage(aquaFun.messaging.messageKeys.dirty);
 			fishTank.tankUI.flickerButton(fishTank.tankUI.buttonKeys.cleaner);
 		}
 	};
 
 	this.addCleaner = function () {
-		var cleaner = new Cleaner(this, this.selectCleanerImage());
+		var cleaner = new aquaFun.Cleaner(this, this.selectCleanerImage());
 		cleaner.spawn();
 		this.tank.addEventListener('clean', this.handleCleanWater);
 	};
 
 	this.feed = function () {
 		var self = this;
-		this.fishFood.setAttribute('class', 'show');
+		this.food.setAttribute('class', 'show');
 		for (var fish of this.allFish) {
-			fish.eat(utils.random(10, 50));
+			fish.eat(aquaFun.utils.random(10, 50));
 		}
 		var endFeeding = setTimeout(function() {
 			self.fishFood.setAttribute('class', 'hide');
