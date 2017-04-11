@@ -3,7 +3,7 @@ aquaFun.Tank = function () {
 	var BreakException = {};
 
 	// Tank Properites
-	this.food = document.querySelector('#fish-food');
+	this.fishFood = document.querySelector('#fish-food');
 	this.tank = document.querySelector('.tank');
 	this.water = document.querySelector('.water');
 	this.allFish = [];
@@ -141,7 +141,7 @@ aquaFun.Tank = function () {
 
 	this.feed = function () {
 		var self = this;
-		this.food.setAttribute('class', 'show');
+		this.fishFood.setAttribute('class', 'show');
 		for (var fish of this.allFish) {
 			fish.eat(aquaFun.utils.random(10, 50));
 		}
