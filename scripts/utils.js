@@ -14,34 +14,13 @@
     }
 
     function getElementProps(element) {
-      var elementCopy = element,
-        top = 0, left = 0, height = 0, width = 0;
-
-      if (document.getElementById || document.all) {
-        height = element.offsetHeight;
-        width = element.offsetWidth;
-
-        do  {
-            left += element.offsetLeft-element.scrollLeft;
-            top += element.offsetTop-element.scrollTop;
-            element = element.offsetParent;
-            elementCopy = elementCopy.parentNode;
-            while (elementCopy != element) {
-                left -= elementCopy.scrollLeft;
-                top -= elementCopy.scrollTop;
-                elementCopy = elementCopy.parentNode;
-            }
-        } while (element.offsetParent);
-
-      } else if (document.layers) {
-        top += element.y;
-        left += element.x;
-      }
+      element = element.getBoundingClientRect();
+      var viewport = getViewport();
       return {
-        top: top,
-        left: left,
-        height: height,
-        width: width
+        left: element.left + viewport.vw * 0.05,
+        top: element.top + viewport.vh * 0.05,
+        right: element.right - viewport.vw * 0.05,
+        bottom: element.bottom - viewport.vh * 0.05
       };
     }
 

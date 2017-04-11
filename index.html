@@ -18,6 +18,7 @@
   <![endif]-->
 
 	<link rel="stylesheet" type="text/css" href="styles/fonts.css">
+  <link rel="stylesheet" type="text/css" href="styles/specialEffects.css">
 	<link rel="stylesheet" type="text/css" href="styles/main.css">
 </head>
 <body>
@@ -38,12 +39,15 @@
     <div class="container">
     	<div class="row">
     		<div class="col-sm-2"></div>
-    		<div class="col-sm-8">
+    		<div class="col-sm-8 table-display">
     			<div class='buttons clearfix'>
     				<button type="button" class='btn btn-success btn-circle btn-xl pull-left btn-fish-tank btn-fish' id='add-fish'></button>
     				<button type="button" class='btn btn-success btn-circle btn-xl pull-left btn-fish-tank btn-clean' id='add-cleaner'></button>
     				<button type="button" class='btn btn-success btn-circle btn-xl pull-left btn-fish-tank btn-food' id='give-food'></button>
     			</div>
+          <div class='rolling-messages'>
+            <div class='content'></div>
+          </div>
     		</div>
         <div class="col-sm-2"></div>
       </div>
@@ -51,8 +55,9 @@
         <div class="col-sm-1"></div>
         <div class="col-sm-10">
           <div class="tank">
+            <div id='fish-food' class='hide'></div>
             <div class='dirt'>
-              <div class="water" style="opacity: 0.99"></div>
+              <div class="water" style='opacity: 0.99'></div>
             </div>
             <div class="ground"></div>
           </div>
@@ -72,6 +77,7 @@
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
     <script src="scripts/utils.js" type="text/javascript" charset="utf-8"></script>
+    <script src="scripts/messaging.js" type="text/javascript" charset="utf-8"></script>
     <script src="scripts/tankUI.js" type="text/javascript" charset="utf-8"></script>
 		<script src="scripts/fish.js" type="text/javascript" charset="utf-8"></script>
 		<script src="scripts/cleaner.js" type="text/javascript" charset="utf-8"></script>

@@ -17,7 +17,7 @@ a, a:hover {
   text-decoration: none;
 }
 
-input, button, .btn:focus {
+input, button, .btn:focus, .btn:active, .btn:hover {
 	outline: none;
 }
 
@@ -82,10 +82,9 @@ ul {
 }
 
 .tank .item, .tank .fish {
-  height: 4vh;
 	position:	absolute;
-  -webkit-transition: all 0.5s ease-in-out; /* Safari */
-  transition: all 0.5s ease-in-out;
+  -webkit-transition: all 1.0s linear; /* Safari */
+  transition: all 1.0s linear;
 }
 
 .tank .right-item {
@@ -97,11 +96,72 @@ ul {
     -ms-filter: "FlipH";
 }
 
-.tank .fish-scale {
-	position:	absolute;
-	width: 5vw;
+.tank .upside-down {
+  transform: rotate(90deg);
+}
+
+.table-display {
+  display: table;
+}
+
+.table-display .buttons {
+  display: table-cell;
+  float: left;
+  width: 240px;
+}
+.rolling-messages {
+  display: table-cell;
+  position: relative;
   -webkit-transition: all 0.5s ease-in-out; /* Safari */
   transition: all 0.5s ease-in-out;
+  width: 100%;
+}
+
+.rolling-messages .content {
+  border: 2px solid #4cae4c;
+  border-radius: 5px;
+  filter: drop-shadow(2px 2px 2px #222);
+  height: 90%;
+  margin: 5px 5px;
+  overflow: hidden;
+  overflow-y: auto;
+  position: absolute;
+  text-align: center;
+  width: 100%;
+}
+
+.content .message {
+  line-height: 65px;
+  opacity: 0;
+  transition: opacity 5s;
+  -webkit-transition: opacity 5s;
+}
+
+.tank .energy {
+  border: 1px solid #333;
+  border-radius: 5px;
+  height: 12px;
+  left: 10px;
+  width: 3vw;
+  position: absolute;
+  top: -10px;
+  -webkit-transition: all 0.5s ease-in-out; /* Safari */
+  transition: all 0.5s ease-in-out;
+}
+
+.energy .perecentage {
+  border: 1px solid transparent;
+  border-radius: 3px;
+  height: 8px;
+  left: 1px;
+  position: absolute;
+  top: 1px;
+  -webkit-transition: all 0.5s ease-in-out; /* Safari */
+  transition: all 0.5s ease-in-out;
+}
+
+.content .fade {
+  opacity: 1.0;
 }
 
 .btn-fish-tank {
@@ -139,6 +199,7 @@ ul {
   line-height: 1.428571429;
   border-radius: 15px;
 }
+
 .btn-circle.btn-lg {
   width: 50px;
   height: 50px;
@@ -156,6 +217,10 @@ ul {
   border-radius: 35px;
 }
 
+.btn-flick {
+  -webkit-transition: all 0.5s ease-in-out; /* Safari */
+  transition: all 0.5s ease-in-out;
+}
 
 .clearfix:after {
 	clear: both;

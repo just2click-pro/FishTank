@@ -2,7 +2,8 @@ var Tank = function () {
 	var self = this;
 	var BreakException = {};
 
-	this.fishTank = document.querySelector('.tank');
+	this.fishFood = document.querySelector('#fish-food');
+	this.tank = document.querySelector('.tank');
 	this.water = document.querySelector('.water');
 	this.allFish = [];
 
@@ -13,39 +14,35 @@ var Tank = function () {
 	this.deadFishEvent = new Event('dead-fish');
 
 	this.getBounds = function () {
-		var viewport = utils.viewport();
-		var waterProps = utils.props(this.water);
-
-		return {
-			'top': waterProps.top - viewport.vh * 0.05,
-			'right': waterProps.width - (viewport.vw * 0.03),
-			'bottom': waterProps.top + waterProps.height - (viewport.vh * 0.09),
-			'left': waterProps.left + viewport.vw * 0.05
-		};
+		return utils.props(document.querySelector('.water'));
 	};
 
 	this.handleFishPoop = function () {
 		self.tankPoop++;
 
 		if ((self.tankPoop % 100) === 0) {
-			self.handleWaterChanges(-0.01);
+			self.handleWaterChanges(-0.05);
 		}
+
+		self.countHungryFish();
 	};
 
 	this.handleCleanWater = function () {
 		self.tankPoop -= 10;
 
 		if ((self.tankPoop % 100) === 0) {
-			self.handleWaterChanges(0.01);
+			self.handleWaterChanges(0.05);
 		}
 	};
 
 	this.handleWaterChanges = function (value) {
-		var waterOpacity = this.water.getAttribute('style');
-		waterOpacity = parseFloat(waterOpacity.split(':')[1], 10);
+		var waterOpacity = this.water.style.opacity;
+		if (typeof waterOpacity === 'string') {
+			waterOpacity = parseFloat(waterOpacity);
+		}
 
 		if ((waterOpacity > 0.01) && (waterOpacity < 1.00)) {
-			this.water.setAttribute('style', waterOpacity + value);
+			this.water.setAttribute('style', 'opacity: ' + (waterOpacity + value));
 		}
 	};
 
@@ -59,6 +56,14 @@ var Tank = function () {
 			});
 		} catch (e) {
 			if (e !== BreakException) throw e;
+		}
+
+		if (self.countLiveFish() === 0) {
+			messaging.postMessage(messaging.messageKeys.end);
+			throw new Error("All the fish are dead!!");
+		} else if (self.countLiveFish() < 5) {
+			messaging.postMessage(messaging.messageKeys.lonely);
+			fishTank.tankUI.flickerButton(fishTank.tankUI.buttonKeys.add);
 		}
 	};
 
@@ -86,24 +91,57 @@ var Tank = function () {
 		}
 	};
 
+	this.countHungryFish = function () {
+		var hungryFish = 0;
+
+		for (var fish of this.allFish) {
+			hungryFish += (fish.food < 30 ? 1: 0);
+		}
+
+		if ((hungryFish / this.allFish.length) > 0.5) {
+			messaging.postMessage(messaging.messageKeys.hungry);
+			fishTank.tankUI.flickerButton(fishTank.tankUI.buttonKeys.food);
+		}
+	};
+
+	this.countLiveFish = function () {
+		return this.allFish.length;
+	};
+
+	this.fishToCleanerRatio = function () {
+		var cleanersCount = document.querySelectorAll('.item');
+
+		return (cleanersCount.length / this.countLiveFish());
+	};
+
 	this.addFish = function () {
 		var fish = new Fish(this, this.selectFishImage());
 		fish.id = utils.guid;
 		fish.hatch();
 		this.allFish.push(fish);
-		this.fishTank.addEventListener('poop', this.handleFishPoop);
-		this.fishTank.addEventListener('dead-fish', this.handleDeadFish);
+		this.tank.addEventListener('poop', this.handleFishPoop);
+		this.tank.addEventListener('dead-fish', this.handleDeadFish);
+		if ((this.fishToCleanerRatio() < 0.3) && (this.countLiveFish() > 3)) {
+			messaging.postMessage(messaging.messageKeys.dirty);
+			fishTank.tankUI.flickerButton(fishTank.tankUI.buttonKeys.cleaner);
+		}
 	};
 
 	this.addCleaner = function () {
 		var cleaner = new Cleaner(this, this.selectCleanerImage());
 		cleaner.spawn();
-		this.fishTank.addEventListener('clean', this.handleClean);
+		this.tank.addEventListener('clean', this.handleCleanWater);
 	};
 
 	this.feed = function () {
+		var self = this;
+		this.fishFood.setAttribute('class', 'show');
 		for (var fish of this.allFish) {
-			fish.eat(utils.random(10, 100));
+			fish.eat(utils.random(10, 50));
 		}
+		var endFeeding = setTimeout(function() {
+			self.fishFood.setAttribute('class', 'hide');
+			clearTimeout(endFeeding);
+		}, 2000);
 	};
 };

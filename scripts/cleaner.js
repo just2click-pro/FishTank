@@ -20,7 +20,7 @@ function Cleaner($container, imageUrl) {
 				}
 				break;
 			case 'right':
-				if ((this.position.x + 10) > bounds.right) {
+				if ((this.position.x + 10) > (bounds.right - bounds.left)) {
 					this.direction = 'left';
 				} else {
 					this.position.x += 10;
@@ -36,9 +36,10 @@ function Cleaner($container, imageUrl) {
 	this.spawn = function () {
 		var that = this;
 		var bounds = $container.getBounds();
+		var viewport = utils.viewport();
 
 		this.position.x = utils.random(0, bounds.right - bounds.left);
-		this.position.y = bounds.bottom - bounds.top;
+		this.position.y = bounds.bottom - bounds.top + viewport.vh * 0.058;
 
 		this.renderCleaner();
 		this.moveCleanerRender();
@@ -54,12 +55,12 @@ function Cleaner($container, imageUrl) {
 		}
 		// Clean every random value of seconds
 		// You can only clean while you have energy
-		$container.fishTank.dispatchEvent($container.cleanEvent);
+		$container.tank.dispatchEvent($container.cleanEvent);
 	};
 
 	this.done = function () {
 		// If food level is below 10 - die
-		$container.fishTank.removeChild(this.image);
+		$container.tank.removeChild(this.image);
 		clearInterval(this.moveInterval);
 			// die
 	};
@@ -68,7 +69,7 @@ function Cleaner($container, imageUrl) {
 		this.image = document.createElement('img');
 		this.image.setAttribute('src', imageUrl);
 		this.image.setAttribute('class', 'item');
-		$container.fishTank.appendChild(this.image);
+		$container.tank.appendChild(this.image);
 	};
 
 	this.moveCleanerRender = function () {
@@ -77,6 +78,8 @@ function Cleaner($container, imageUrl) {
 		} else {
 			this.image.setAttribute('class', 'item');
 		}
-		this.image.setAttribute('style', 'top:' + this.position.y + 'px; left:' + this.position.x + 'px');
+		this.image.setAttribute('style', 'top:' + this.position.y + 'px; ' +
+			'left:' + this.position.x + 'px; ' +
+			'height: 4vh;');
 	};
 }
