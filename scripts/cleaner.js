@@ -9,7 +9,7 @@ aquaFun.Cleaner = function ($container, imageUrl) {
 		'y': 0
 	};
 	this.direction = (aquaFun.utils.random(1, 2) === 1 ? 'right' : 'left');
-	this.energy = aquaFun.utils.random(50, 100);	// Start with a random amount of energy
+	this.energy = aquaFun.utils.random(500, 1000);	// Start with a random amount of energy
 
 	this.moveInterval = undefined;
 
@@ -67,13 +67,15 @@ aquaFun.Cleaner = function ($container, imageUrl) {
 		});
 	};
 
-	this.done = function () {
-		var self = this;
+	this.done = function (silent) {
+		if (!silent) {
+			var self = this;
 
-		$($container.tank).trigger({
-			type: 'claner-done',
-			id: self.id
-		});
+			$($container.tank).trigger({
+				type: 'claner-done',
+				id: self.id
+			});
+		}
 		this.image.remove();
 		clearInterval(this.moveInterval);
 	};

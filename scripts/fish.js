@@ -112,16 +112,20 @@ aquaFun.Fish = function ($container, imageUrl) {
 		});
 	};
 
-	this.die = function () {
-		var self = this;
-		// If food level is below 10 - die
-		// die
-		this.dying = true;
+	this.die = function (silent) {
+		if (!silent) {
+			var self = this;
+			// If food level is below 10 - die
+			// die
+			this.dying = true;
 
-		$($container.tank).trigger({
-			type: 'dead-fish',
-			id: self.id
-		});
+			$($container.tank).trigger({
+				type: 'dead-fish',
+				id: self.id
+			});
+		}
+
+		this.fish.remove();
 		clearInterval(this.swimInterval);
 	};
 

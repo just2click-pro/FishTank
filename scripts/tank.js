@@ -49,6 +49,10 @@ aquaFun.Tank = function () {
 			return false;
 		}
 
+		if ((this.countLiveFish() < 5) && (waterOpacity <= 0.5)) {
+			aquaFun.messaging.postMessage(aquaFun.messaging.messageKeys.dirty);
+		}
+
 		if ((waterOpacity > 0.01) && (waterOpacity < 1.00)) {
 			$(this.water).css({
 				'opacity': waterOpacity + value
@@ -91,7 +95,7 @@ aquaFun.Tank = function () {
 
 			return false;
 
-		} else if (self.countLiveFish() < 5) {
+		} else if (self.countLiveFish() < 3) {
 			aquaFun.messaging.postMessage(aquaFun.messaging.messageKeys.lonely);
 			aquaFun.fishTank.ui.flickerButton(aquaFun.fishTank.ui.buttonKeys.add);
 		}
@@ -156,18 +160,21 @@ aquaFun.Tank = function () {
 	// Actions
 	this.emptyTank = function () {
 		for (var fish of this.allFish) {
-			fish.die();
+			fish.die(true);
 		}
 
 		for (var cleaner of this.allCleaners) {
-			cleaner.done();
+			cleaner.done(true);
 		}
 	};
 
 	this.checkFishRatio = function () {
-		if ((this.fishToCleanerRatio() < 0.125) && (this.countLiveFish() > 3)) {
+		if (this.countCleaners() === 0) {
+			if (this.countLiveFish() > 4) {
+				aquaFun.messaging.postMessage(aquaFun.messaging.messageKeys.dirty);
+			}
+		} else if (this.fishToCleanerRatio() < 0.125) {
 			aquaFun.messaging.postMessage(aquaFun.messaging.messageKeys.dirty);
-			aquaFun.fishTank.ui.flickerButton(aquaFun.fishTank.ui.buttonKeys.cleaner);
 		}
 	};
 
