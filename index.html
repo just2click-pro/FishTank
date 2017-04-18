@@ -22,7 +22,6 @@
 	<link rel="stylesheet" type="text/css" href="styles/main.css">
   <script type="text/javascript" charset="utf-8">
     var aquaFun = {};
-
   </script>
 </head>
 <body>
@@ -35,10 +34,25 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#"><img src='resources/images/orange-fish.png' class='logo' alt='Fish Tank Logo' /> Fish Tank</a>
+          <a class="navbar-brand" href="#"><img src='resources/images/blue-fish.png' class='logo' alt='Fish Tank Logo' /> Fish Tank</a>
         </div>
       </div>
     </nav>
+
+    <div class="lightbox hide">
+      <div class="modal-dialog">
+        <div class="close-button">x</div>
+        <div class="title">
+
+        </div>
+        <div class="message">
+
+        </div>
+        <div class="buttons">
+          <button type="button" class="btn btn-primary" id="modal-ok">Ok</button>
+        </div>
+      </div>
+    </div>
 
     <div class="container">
     	<div class="row">
@@ -49,7 +63,7 @@
     				<button type="button" class='btn btn-success btn-circle btn-xl pull-left btn-fish-tank btn-clean' id='add-cleaner'></button>
     				<button type="button" class='btn btn-success btn-circle btn-xl pull-left btn-fish-tank btn-food' id='give-food'></button>
     			</div>
-          <div class='rolling-messages'>
+          <div class='rolling-messages hide'>
             <div class='content'></div>
           </div>
     		</div>
@@ -87,5 +101,9 @@
 		<script src="scripts/cleaner.js" type="text/javascript" charset="utf-8"></script>
 		<script src="scripts/tank.js" type="text/javascript" charset="utf-8"></script>
     <script src="scripts/main.js" type="text/javascript" charset="utf-8"></script>
+
+    <script type="text/javascript" charset="utf-8">
+      aquaFun.fishTank.init();
+    </script>
 </body>
 </html>

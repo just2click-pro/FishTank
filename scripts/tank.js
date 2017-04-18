@@ -3,20 +3,17 @@ aquaFun.Tank = function () {
 	var BreakException = {};
 
 	// Tank Properites
-	this.fishFood = document.querySelector('#fish-food');
-	this.tank = document.querySelector('.tank');
-	this.water = document.querySelector('.water');
+	this.fishFood = $('#fish-food');
+	this.tank = $('.tank');
+	this.water = $('.water');
 	this.allFish = [];
+	this.allCleaners = [];
 
 	this.poop = 0;
 
-	this.poopEvent = new Event('poop');
-	this.cleanEvent = new Event('clean');
-	this.deadFishEvent = new Event('dead-fish');
-
 	// Utils
 	this.getBounds = function () {
-		return aquaFun.utils.props(document.querySelector('.water'));
+		return aquaFun.utils.props(this.water);
 	};
 
 	// Handlers - take care of events
@@ -33,41 +30,80 @@ aquaFun.Tank = function () {
 	this.handleCleanWater = function () {
 		self.poop -= 10;
 
+		if (self.poop < 0) { self.poop = 0; }
+
 		if ((self.poop % 100) === 0) {
-			self.handleWaterChanges(0.05);
+			self.handleWaterChanges(0.1);
 		}
 	};
 
 	this.handleWaterChanges = function (value) {
-		var waterOpacity = this.water.style.opacity;
+		var waterOpacity = $(this.water).css('opacity');
 		if (typeof waterOpacity === 'string') {
 			waterOpacity = parseFloat(waterOpacity);
 		}
 
+		if (waterOpacity === 0.00) {
+			aquaFun.messaging.postMessage(aquaFun.messaging.messageKeys.tooDirty);
+			self.emptyTank();
+			return false;
+		}
+
+		if ((this.countLiveFish() < 5) && (waterOpacity <= 0.5)) {
+			aquaFun.messaging.postMessage(aquaFun.messaging.messageKeys.dirty);
+		}
+
 		if ((waterOpacity > 0.01) && (waterOpacity < 1.00)) {
-			this.water.setAttribute('style', 'opacity: ' + (waterOpacity + value));
+			$(this.water).css({
+				'opacity': waterOpacity + value
+			});
 		}
 	};
 
-	this.handleDeadFish = function (params) {
+	this.handleCleanerDone = function (params) {
 		try {
-			self.allFish.forEach(function (isThisADeadFish, index) {
-				if (isThisADeadFish.id === params.fish.id) {
-					self.allFish.splice(index, 1);
+			self.allCleaners.forEach(function (isThisCleanerDone, index) {
+				if (isThisCleanerDone.id === params.id) {
+					self.allCleaners.splice(index, 1);
+					self.checkCleanerRatio();
 					throw BreakException;
 				}
 			});
 		} catch (e) {
 			if (e !== BreakException) throw e;
 		}
+	};
 
+	this.deadFish = function (params) {
+		try {
+			self.allFish.forEach(function (isThisADeadFish, index) {
+				if (isThisADeadFish.id === params.id) {
+					self.allFish.splice(index, 1);
+					self.checkFishRatio();
+					throw BreakException;
+				}
+			});
+		} catch (e) {
+			if (e !== BreakException) throw e;
+		}
+	};
+
+	this.afterDeathHandlers = function () {
 		if (self.countLiveFish() === 0) {
 			aquaFun.messaging.postMessage(aquaFun.messaging.messageKeys.end);
-			throw new Error("All the fish are dead!!");
-		} else if (self.countLiveFish() < 5) {
+			self.emptyTank();
+
+			return false;
+
+		} else if (self.countLiveFish() < 3) {
 			aquaFun.messaging.postMessage(aquaFun.messaging.messageKeys.lonely);
-			fishTank.tankUI.flickerButton(fishTank.tankUI.buttonKeys.add);
+			aquaFun.fishTank.ui.flickerButton(aquaFun.fishTank.ui.buttonKeys.add);
 		}
+	};
+
+	this.handleDeadFishEvent = function (params) {
+		self.deadFish(params);
+		self.afterDeathHandlers();
 	};
 
 	// Select Fish/Cleaner images
@@ -105,7 +141,7 @@ aquaFun.Tank = function () {
 
 		if ((hungryFish / this.allFish.length) > 0.5) {
 			aquaFun.messaging.postMessage(aquaFun.messaging.messageKeys.hungry);
-			fishTank.tankUI.flickerButton(fishTank.tankUI.buttonKeys.food);
+			aquaFun.fishTank.ui.flickerButton(aquaFun.fishTank.ui.buttonKeys.food);
 		}
 	};
 
@@ -113,40 +149,69 @@ aquaFun.Tank = function () {
 		return this.allFish.length;
 	};
 
-	this.fishToCleanerRatio = function () {
-		var cleanersCount = document.querySelectorAll('.item');
+	this.countCleaners = function () {
+		return $('.item').length;
+	};
 
-		return (cleanersCount.length / this.countLiveFish());
+	this.fishToCleanerRatio = function () {
+		return (this.countCleaners() / this.countLiveFish());
 	};
 
 	// Actions
+	this.emptyTank = function () {
+		for (var fish of this.allFish) {
+			fish.die(true);
+		}
+
+		for (var cleaner of this.allCleaners) {
+			cleaner.done(true);
+		}
+	};
+
+	this.checkFishRatio = function () {
+		if (this.countCleaners() === 0) {
+			if (this.countLiveFish() > 4) {
+				aquaFun.messaging.postMessage(aquaFun.messaging.messageKeys.dirty);
+			}
+		} else if (this.fishToCleanerRatio() < 0.125) {
+			aquaFun.messaging.postMessage(aquaFun.messaging.messageKeys.dirty);
+		}
+	};
+
 	this.addFish = function () {
 		var fish = new aquaFun.Fish(this, this.selectFishImage());
-		fish.id = aquaFun.utils.guid;
 		fish.hatch();
 		this.allFish.push(fish);
-		this.tank.addEventListener('poop', this.handleFishPoop);
-		this.tank.addEventListener('dead-fish', this.handleDeadFish);
-		if ((this.fishToCleanerRatio() < 0.3) && (this.countLiveFish() > 3)) {
-			aquaFun.messaging.postMessage(aquaFun.messaging.messageKeys.dirty);
-			fishTank.tankUI.flickerButton(fishTank.tankUI.buttonKeys.cleaner);
+		$(this.tank).on('poop', this.handleFishPoop);
+		$(this.tank).on('dead-fish', this.handleDeadFishEvent);
+
+		self.checkFishRatio();
+	};
+
+	this.checkCleanerRatio = function () {
+		if ((this.fishToCleanerRatio() > 0.25) && (this.countCleaners() > 7)) {
+			aquaFun.messaging.postMessage(aquaFun.messaging.messageKeys.tooClean);
+			aquaFun.fishTank.ui.flickerButton(aquaFun.fishTank.ui.buttonKeys.add);
 		}
 	};
 
 	this.addCleaner = function () {
 		var cleaner = new aquaFun.Cleaner(this, this.selectCleanerImage());
 		cleaner.spawn();
-		this.tank.addEventListener('clean', this.handleCleanWater);
+		this.allCleaners.push(cleaner);
+		$(this.tank).on('clean', this.handleCleanWater);
+		$(this.tank).on('claner-done', this.handleCleanerDone);
+
+		self.checkCleanerRatio();
 	};
 
 	this.feed = function () {
-		var self = this;
-		this.fishFood.setAttribute('class', 'show');
+		$(this.fishFood).addClass('show').removeClass('hide');
 		for (var fish of this.allFish) {
 			fish.eat(aquaFun.utils.random(10, 50));
 		}
 		var endFeeding = setTimeout(function() {
-			self.fishFood.setAttribute('class', 'hide');
+			$(self.fishFood).addClass('hide').removeClass('show');
 			clearTimeout(endFeeding);
 		}, 2000);
 	};

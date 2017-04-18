@@ -1,7 +1,9 @@
 aquaFun.Cleaner = function ($container, imageUrl) {
 
 	// Cleaner Properties
+	this.id = aquaFun.utils.guid();
 	this.image = undefined;
+
 	this.position = {
 		'x': 0,
 		'y': 0
@@ -33,7 +35,7 @@ aquaFun.Cleaner = function ($container, imageUrl) {
 		}
 
 		this.energy--;
-		if (this.energy % 10) { this.clean(); }
+		if (this.energy % 10 === 0) { this.clean(); }
 		this.moveCleanerRender();
 	};
 
@@ -46,11 +48,12 @@ aquaFun.Cleaner = function ($container, imageUrl) {
 		this.position.y = bounds.bottom - bounds.top + viewport.vh * 0.058;
 
 		this.renderCleaner();
+		this.image = $('#' + this.id);
 		this.moveCleanerRender();
 
 		this.moveInterval = setInterval(function () {
 			that.move();
-		}, aquaFun.utils.random(100, 900));
+		}, aquaFun.utils.random(10, 900));
 	};
 
 	this.clean = function () {
@@ -59,32 +62,39 @@ aquaFun.Cleaner = function ($container, imageUrl) {
 		}
 		// Clean every random value of seconds
 		// You can only clean while you have energy
-		$container.tank.dispatchEvent($container.cleanEvent);
+		$($container.tank).trigger({
+			type: 'clean'
+		});
 	};
 
-	this.done = function () {
-		// If food level is below 10 - die
-		$container.tank.removeChild(this.image);
+	this.done = function (silent) {
+		if (!silent) {
+			var self = this;
+
+			$($container.tank).trigger({
+				type: 'claner-done',
+				id: self.id
+			});
+		}
+		this.image.remove();
 		clearInterval(this.moveInterval);
-			// die
 	};
 
 	// Renderers
 	this.renderCleaner = function () {
-		this.image = document.createElement('img');
-		this.image.setAttribute('src', imageUrl);
-		this.image.setAttribute('class', 'item');
-		$container.tank.appendChild(this.image);
+		$($container.tank).append('<img id="' + this.id + '" src="' + imageUrl + '" class="item" />');
 	};
 
 	this.moveCleanerRender = function () {
 		if (this.direction === 'right') {
-			this.image.setAttribute('class', 'item right-item');
+			$(this.image).addClass('right-item');
 		} else {
-			this.image.setAttribute('class', 'item');
+			$(this.image).removeClass('right-item');
 		}
-		this.image.setAttribute('style', 'top:' + this.position.y + 'px; ' +
-			'left:' + this.position.x + 'px; ' +
-			'height: 4vh;');
+		$(this.image).css({
+			'height': '4vh',
+			'left':this.position.x + 'px',
+			'top': this.position.y + 'px'
+		});
 	};
 };
