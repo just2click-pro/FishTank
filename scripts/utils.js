@@ -14,12 +14,12 @@
     }
 
     function getElementProps(element) {
-      element = element.getBoundingClientRect();
+      element = element[0].getBoundingClientRect();
       var viewport = getViewport();
       return {
-        left: element.left + viewport.vw * 0.05,
+        left: element.left + viewport.vw * 0.02,
         top: element.top + viewport.vh * 0.05,
-        right: element.right - viewport.vw * 0.05,
+        right: element.right - viewport.vw * 0.02,
         bottom: element.bottom - viewport.vh * 0.05
       };
     }

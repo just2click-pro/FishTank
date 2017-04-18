@@ -1,8 +1,11 @@
 aquaFun.Fish = function ($container, imageUrl) {
 
 	// Fish properties
+	this.id = aquaFun.utils.guid();
 	this.fish = undefined;
 	this.image = undefined;
+	this.percentage = undefined;
+
 	this.energyColors = {
 		green: '#99ff33',
 		red: '#ff6666'
@@ -68,6 +71,9 @@ aquaFun.Fish = function ($container, imageUrl) {
 		this.position.y = aquaFun.utils.random(40, bounds.bottom - bounds.top);
 
 		this.renderFish();
+		this.fish = $('#' + this.id);
+		this.image = $('#fishImage_' + this.id);
+		this.percentage = $('#fishPercentage_' + this.id);
 		this.swimFishRender('fish');
 
 		this.swimInterval = setInterval(function () {
@@ -76,7 +82,6 @@ aquaFun.Fish = function ($container, imageUrl) {
 	};
 
 	this.eat = function (food) {
-		var that = this;
 		if ((this.food + food) > 500) {
 			this.food = 500;
 		} else {
@@ -102,65 +107,67 @@ aquaFun.Fish = function ($container, imageUrl) {
 		}
 		// Poop every random value of seconds
 		// You can only poop if you have food
-		$container.tank.dispatchEvent($container.poopEvent);
+		$($container.tank).trigger({
+			type: 'poop'
+		});
 	};
 
 	this.die = function () {
+		var self = this;
 		// If food level is below 10 - die
 		// die
 		this.dying = true;
 
-		$container.deadFishEvent.fish = this;
-		$container.tank.dispatchEvent($container.deadFishEvent);
+		$($container.tank).trigger({
+			type: 'dead-fish',
+			id: self.id
+		});
 		clearInterval(this.swimInterval);
 	};
 
 	// Rendereds
 	this.renderFish = function () {
-		this.perecentage = document.createElement('div');
-		this.energy = document.createElement('div');
-		this.fish = document.createElement('div');
-		this.image = document.createElement('img');
-
-		this.fish.setAttribute('class', 'fish');
-		this.perecentage.setAttribute('class', 'perecentage');
-		this.perecentage.setAttribute('style',
-			'background:' + (this.food > 200 ? this.greenColor : this.redColor) + ';' +
-			'width:' + this.energyPercentage() + '%;');
-		this.energy.setAttribute('class', 'energy');
-
-		this.image.setAttribute('src', imageUrl);
-
-		this.energy.appendChild(this.perecentage);
-		this.fish.appendChild(this.image);
-		this.fish.appendChild(this.energy);
-		$container.tank.appendChild(this.fish);
+		$($container.tank).append('<div class="fish" id="' + this.id + '">' +
+			'<img id="fishImage_' + this.id + '" src="' + imageUrl + '" />' +
+			'<div class="energy">' +
+				'<div id="fishPercentage_' + this.id +  '" class="percentage" style="background:' +
+					(this.food > 200 ? this.greenColor : this.redColor) + '; ' +
+					'width: ' + this.energyPercentage() + '%;">' +
+				'</div>' +
+			'</div>' +
+		'</div>');
 	};
 
 	this.deadFishRender = function (fish) {
 		this.swimFishRender('upside-down');
 
 		var flipDeadFishTimer = setTimeout(function () {
-			$container.tank.removeChild(fish);
+			fish.remove();
 			clearTimeout(flipDeadFishTimer);
 		}, 1000);
 	};
 
 	this.swimFishRender = function (additionalClass) {
 		if (this.direction === 'right') {
-			this.image.setAttribute('class', 'fish right-item ' + additionalClass);
+			$(this.image).addClass('right-item ' + additionalClass);
 		} else {
-			this.image.setAttribute('class', 'fish ' + additionalClass);
+			$(this.image).removeClass('right-item');
+			if (additionalClass) {
+				$(this.image).addClass(additionalClass);
+			}
 		}
-		this.image.setAttribute('style', 'height:' +  this.size + 'vh');
-		this.fish.setAttribute('style',
-			'position: absolute; top:' + this.position.y + 'px; left:' + this.position.x + 'px;');
+		$(this.image).css({'height': this.size + 'vh' });
+		$(this.fish).css({
+			'position': 'absolute',
+			'top': this.position.y + 'px',
+			'left': this.position.x + 'px'
+		});
 	};
 
 	this.energyRender = function () {
-		this.perecentage.setAttribute('style',
-			'background:' + (this.food > 200 ? this.energyColors.green : this.energyColors.red) + ';' +
-			'width:' + this.energyPercentage() + '%;');
-
+		$(this.percentage).css({
+			'background': (this.food > 200 ? this.energyColors.green : this.energyColors.red),
+			'width': this.energyPercentage() + '%'
+		});
 	};
 };

@@ -149,7 +149,7 @@ ul {
   transition: all 0.5s ease-in-out;
 }
 
-.energy .perecentage {
+.energy .percentage {
   border: 1px solid transparent;
   border-radius: 3px;
   height: 8px;
@@ -220,6 +220,80 @@ ul {
 .btn-flick {
   -webkit-transition: all 0.5s ease-in-out; /* Safari */
   transition: all 0.5s ease-in-out;
+}
+
+.lightbox {
+  background: rgba(255, 255, 255, 0.66);
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 30;
+}
+
+.lightbox .modal-dialog {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 5px;
+  filter: drop-shadow(2px 2px 2px #222);
+  font-family: 'monaco';
+  margin: 0 auto;
+  text-align: center;
+  height: 20vh;
+  position: relative;
+  top: 30%;
+  width: 40vw;
+  z-index: 31;
+}
+
+.lightbox .normal {
+  border: 2px solid #2e6da4;
+}
+
+.lightbox .warning  {
+  border: 2px solid #eea236;
+}
+
+.lightbox .danger {
+  border: 2px solid #d43f3a;
+}
+
+.modal-dialog .title {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 40px;
+  margin: 5px 0;
+  min-height: 40px;
+  text-align: center;
+}
+
+.modal-dialog .message {
+  font-size: 16px;
+  font-weight: 300;
+  line-height:22px;
+  min-height: 10vh;
+  margin: 5px 20px 0;
+  text-align: left;
+}
+
+.modal-dialog .buttons {
+  height: 50px;
+}
+
+.modal-dialog .close-button {
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 32px;
+  position: absolute;
+  right: 10px;
+  top: 5px;
+  font-family: sans-serif;
+}
+
+.modal-dialog .close-button:hover {
+  color: #555;
+  cursor: pointer;
+  filter: drop-shadow(2px 2px 2px #222);
 }
 
 .clearfix:after {
