@@ -16,6 +16,32 @@ aquaFun.Tank = function () {
 		return aquaFun.utils.props(this.water);
 	};
 
+	// Counters
+	this.countHungryFish = function () {
+		var hungryFish = 0;
+
+		for (var fish of this.allFish) {
+			hungryFish += (fish.food < 30 ? 1: 0);
+		}
+
+		if ((hungryFish / this.allFish.length) > 0.5) {
+			aquaFun.messaging.postMessage(aquaFun.messaging.messageKeys.hungry);
+			aquaFun.fishTank.ui.flickerButton(aquaFun.fishTank.ui.buttonKeys.food);
+		}
+	};
+
+	this.countLiveFish = function () {
+		return this.allFish.length;
+	};
+
+	this.countCleaners = function () {
+		return $('.item').length;
+	};
+
+	this.fishToCleanerRatio = function () {
+		return (this.countCleaners() / this.countLiveFish());
+	};
+
 	// Handlers - take care of events
 	this.handleFishPoop = function () {
 		self.poop++;
@@ -27,18 +53,22 @@ aquaFun.Tank = function () {
 		self.countHungryFish();
 	};
 
-	this.handleCleanWater = function () {
-		self.poop -= 10;
+	this.handleCleanWater = function (params) {
+		// This one is a bit trickey, since poop is added one by one
+		// but cleaners goble up more than that we need to go over
+		for (var i = 0; i < params.cleaned; i++) {
+			self.poop--;
 
-		if (self.poop < 0) { self.poop = 0; }
+			if (self.poop < 0) { self.poop = 0; }
 
-		if ((self.poop % 100) === 0) {
-			self.handleWaterChanges(0.1);
+			if ((self.poop % 100) === 0) {
+				self.handleWaterChanges(0.1);
+			}
 		}
 	};
 
 	this.handleWaterChanges = function (value) {
-		var waterOpacity = $(this.water).css('opacity');
+		var waterOpacity = $(self.water).css('opacity');
 		if (typeof waterOpacity === 'string') {
 			waterOpacity = parseFloat(waterOpacity);
 		}
@@ -49,12 +79,12 @@ aquaFun.Tank = function () {
 			return false;
 		}
 
-		if ((this.countLiveFish() < 5) && (waterOpacity <= 0.5)) {
+		if ((self.countLiveFish() < 5) && (waterOpacity <= 0.5)) {
 			aquaFun.messaging.postMessage(aquaFun.messaging.messageKeys.dirty);
 		}
 
 		if ((waterOpacity > 0.01) && (waterOpacity < 1.00)) {
-			$(this.water).css({
+			$(self.water).css({
 				'opacity': waterOpacity + value
 			});
 		}
@@ -74,7 +104,7 @@ aquaFun.Tank = function () {
 		}
 	};
 
-	this.deadFish = function (params) {
+	this.handleDeadFish = function (params) {
 		try {
 			self.allFish.forEach(function (isThisADeadFish, index) {
 				if (isThisADeadFish.id === params.id) {
@@ -102,8 +132,8 @@ aquaFun.Tank = function () {
 	};
 
 	this.handleDeadFishEvent = function (params) {
-		self.deadFish(params);
-		self.afterDeathHandlers();
+		this.handleDeadFish(params);
+		this.afterDeathHandlers();
 	};
 
 	// Select Fish/Cleaner images
@@ -129,32 +159,6 @@ aquaFun.Tank = function () {
 			case 2:
 				return 'resources/images/vacuum-cleaner.png';
 		}
-	};
-
-	// Counters
-	this.countHungryFish = function () {
-		var hungryFish = 0;
-
-		for (var fish of this.allFish) {
-			hungryFish += (fish.food < 30 ? 1: 0);
-		}
-
-		if ((hungryFish / this.allFish.length) > 0.5) {
-			aquaFun.messaging.postMessage(aquaFun.messaging.messageKeys.hungry);
-			aquaFun.fishTank.ui.flickerButton(aquaFun.fishTank.ui.buttonKeys.food);
-		}
-	};
-
-	this.countLiveFish = function () {
-		return this.allFish.length;
-	};
-
-	this.countCleaners = function () {
-		return $('.item').length;
-	};
-
-	this.fishToCleanerRatio = function () {
-		return (this.countCleaners() / this.countLiveFish());
 	};
 
 	// Actions
@@ -185,7 +189,7 @@ aquaFun.Tank = function () {
 		$(this.tank).on('poop', this.handleFishPoop);
 		$(this.tank).on('dead-fish', this.handleDeadFishEvent);
 
-		self.checkFishRatio();
+		this.checkFishRatio();
 	};
 
 	this.checkCleanerRatio = function () {
@@ -202,7 +206,7 @@ aquaFun.Tank = function () {
 		$(this.tank).on('clean', this.handleCleanWater);
 		$(this.tank).on('claner-done', this.handleCleanerDone);
 
-		self.checkCleanerRatio();
+		this.checkCleanerRatio();
 	};
 
 	this.feed = function () {
