@@ -10,6 +10,7 @@ aquaFun.Cleaner = function ($container, imageUrl) {
 	};
 	this.direction = (aquaFun.utils.random(1, 2) === 1 ? 'right' : 'left');
 	this.energy = aquaFun.utils.random(500, 1000);	// Start with a random amount of energy
+	this.cleaningPower = aquaFun.utils.random(10, 30);
 
 	this.moveInterval = undefined;
 
@@ -57,13 +58,15 @@ aquaFun.Cleaner = function ($container, imageUrl) {
 	};
 
 	this.clean = function () {
+		var self = this;
 		if (this.energy <= 10) {
 			this.done();
 		}
 		// Clean every random value of seconds
 		// You can only clean while you have energy
 		$($container.tank).trigger({
-			type: 'clean'
+			type: 'clean',
+			cleaned: self.cleaningPower
 		});
 	};
 
